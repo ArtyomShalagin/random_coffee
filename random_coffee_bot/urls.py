@@ -16,6 +16,9 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
+from core import viewsets
+
 urlpatterns = [
+    path('telegram_hook', viewsets.TelegramHook.as_view(), name='telegram_hook'),
     path('admin/', admin.site.urls),
 ]

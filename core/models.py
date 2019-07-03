@@ -9,6 +9,7 @@ class TelegramUser(models.Model):
     first_name = models.CharField(max_length=30)
     last_name = models.CharField(max_length=150, null=True, blank=True)
     username = models.CharField(max_length=100, null=True, blank=True)
+    chat = models.ForeignKey("TelegramChat", on_delete=models.CASCADE)
 
     def full_name(self):
         return f"{self.first_name}{'' if self.last_name is None else ' ' + self.last_name}"
@@ -30,7 +31,6 @@ class TelegramChat(models.Model):
 
     state = models.TextField(default='init')
     state_updated = models.DateTimeField(null=True, blank=True)
-    # employee = models.ForeignKey('Employee', null=True, blank=True, on_delete=models.CASCADE)
 
     def __str__(self):
         return u'%s %s' % (self.chat_id, self.name)
@@ -97,17 +97,12 @@ class RCUser(AbstractBaseUser, PermissionsMixin):
 
     is_staff = models.BooleanField(default=False)
 
-    first_name = models.CharField(max_length=30, blank=True)
-    last_name = models.CharField(max_length=150, blank=True)
-    # telegram_user = models.ForeignKey(TelegramUser, null=True, blank=True, on_delete=models.CASCADE)
-    telegram_chat = models.ForeignKey(TelegramChat, null=True, blank=True,
-                                      on_delete=models.CASCADE, related_name='telegram_chat')
+    telegram_user = models.ForeignKey(TelegramUser, null=True, on_delete=models.CASCADE)
     telegram_uid = models.TextField(unique=True)
-    telegram_username = models.TextField(null=True)
 
     role = models.CharField(default="common", max_length=100)
 
-    gang = models.ForeignKey('Gang', on_delete=models.CASCADE)  # TODO change to m2m
+    gang = models.ForeignKey('Gang', null=True, on_delete=models.CASCADE)  # TODO change to m2m
     tags = ArrayField(models.CharField(max_length=100), default=list)
 
     # is_regular = models.BooleanField(default=True)
@@ -116,10 +111,10 @@ class RCUser(AbstractBaseUser, PermissionsMixin):
     objects = RCUserManager()
 
     def mention(self):
-        return f'[{self.first_name}](tg://user?id={self.telegram_chat.chat_id})'
+        return f'[{self.telegram_user.first_name}](tg://user?id={self.telegram_user.chat.chat_id})'
 
     def __str__(self):
-        return f'{self.first_name} {self.telegram_uid}'
+        return f'{self.telegram_user.first_name} {self.telegram_uid}'
 
 
 class Gang(models.Model):
