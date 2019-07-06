@@ -114,7 +114,7 @@ class RCUser(AbstractBaseUser, PermissionsMixin):
         return f'[{self.telegram_user.first_name}](tg://user?id={self.telegram_user.chat.chat_id})'
 
     def __str__(self):
-        return f'{self.telegram_user.first_name} {self.telegram_uid}'
+        return f'{self.telegram_user.first_name if self.telegram_user is not None else "unknown"} {self.telegram_uid}'
 
 
 class Gang(models.Model):
