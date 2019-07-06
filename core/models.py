@@ -9,7 +9,7 @@ class TelegramUser(models.Model):
     first_name = models.CharField(max_length=30)
     last_name = models.CharField(max_length=150, null=True, blank=True)
     username = models.CharField(max_length=100, null=True, blank=True)
-    chat = models.ForeignKey("TelegramChat", on_delete=models.CASCADE)
+    chat = models.ForeignKey("TelegramChat", null=True, on_delete=models.CASCADE)
 
     def full_name(self):
         return f"{self.first_name}{'' if self.last_name is None else ' ' + self.last_name}"

@@ -30,21 +30,22 @@ def parse_message(message_json) -> TelegramMessage:
     message_id = message_json["message_id"]
     if TelegramMessage.objects.filter(message_id=message_id).exists():
         return TelegramMessage.objects.get(message_id=message_id)
-    from_user = parse_user(message_json["from"])
-    date = datetime.datetime.fromtimestamp(message_json["date"])
     chat = parse_chat(message_json["chat"])
+    from_user = parse_user(message_json["from"], chat=chat if chat.type == "private" else None)
+    date = datetime.datetime.fromtimestamp(message_json["date"])
     text = message_json["text"]
     return TelegramMessage.objects.create(message_id=message_id, from_user=from_user, date=date, chat=chat, text=text)
 
 
-def parse_user(user_json) -> TelegramUser:
+def parse_user(user_json, chat=None) -> TelegramUser:
     uid = user_json["id"]
     if TelegramUser.objects.filter(uid=uid).exists():
         return TelegramUser.objects.get(uid=uid)  # TODO update user
     first_name = user_json["first_name"]
     last_name = user_json.get("last_name")
     username = user_json.get("username")
-    return TelegramUser.objects.create(uid=uid, first_name=first_name, last_name=last_name, username=username)
+    return TelegramUser.objects.create(uid=uid, first_name=first_name, last_name=last_name, username=username,
+                                       chat=chat)
 
 
 def parse_chat(chat_json) -> TelegramChat:
