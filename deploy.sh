@@ -12,13 +12,15 @@ mkdir -p $STATIC_DIR
 
 echo copying files to $BACKEND_DIR...
 cp -r $ROOT_DIR/* $BACKEND_DIR
-echo done
 
 echo updating pip packages...
 $MAIN_DIR/.env/bin/pip install -r $ROOT_DIR/requirements.txt
 
 echo copying local settings...
 cp $MAIN_DIR/local_settings.py $BACKEND_DIR/random_coffee_bot
+
+echo applying database migrations...
+$MAIN_DIR/.env/bin/python $BACKEND_DIR/manage.py migrate
 
 echo restarting server...
 supervisorctl restart randomcoffeebot
