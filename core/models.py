@@ -33,7 +33,7 @@ class TelegramChat(models.Model):
     state_updated = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
-        return u'%s %s' % (self.chat_id, self.name)
+        return f"{self.type} chat {self.title or self.username or (self.first_name + self.last_name)}"
 
 
 class TelegramMessage(models.Model):
@@ -47,7 +47,7 @@ class TelegramMessage(models.Model):
     new_chat_members = models.ManyToManyField(TelegramUser, related_name='%(class)s_new_chat_members')
 
     def __str__(self):
-        return '{} in chat {}: {}'.format(self.from_user.full_name(), self.chat.name, self.text)
+        return f"{self.from_user.full_name()} in {self.chat}: {self.text}"
 
 
 class TelegramUpdate(models.Model):

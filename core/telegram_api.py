@@ -1,5 +1,11 @@
 from core.models import TelegramUpdate, TelegramMessage, TelegramUser, TelegramChat
 import datetime
+from random_coffee_bot.settings import BOT_TOKEN
+import requests
+import logging
+
+
+logger = logging.getLogger("general")
 
 
 def parse_update(update_json) -> TelegramUpdate:
@@ -53,3 +59,13 @@ def parse_chat(chat_json) -> TelegramChat:
     return TelegramChat.objects\
         .create(chat_id=chat_id, first_name=first_name, last_name=last_name, username=username,
                 title=title, type=chat_type, state_updated=datetime.datetime.now())
+
+
+def send_message(chat, text):
+    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage?chat_id={chat.chat_id}&text={text}"
+    try:
+        logger.info(f"sending message to {chat}")
+        requests.post(url)
+    except Exception as e:
+        logger.error(f"unable to send telegram message: {e}")
+        # TODO handle blocked by user, retry to send before reporting etc

@@ -3,22 +3,26 @@ from rest_framework.views import APIView
 import logging
 import json
 import core.telegram_api as tg
+from core.models import *
 
 
 logger = logging.getLogger('general')
 
 
+def ensure_user_exists(tg_user):
+    if not RCUser.objects.filter(telegram_uid=tg_user.uid).exists():
+        RCUser.objects.create(telegram_user=tg_user, telegram_uid=tg_user.uid)
+
+
 class TelegramHook(APIView):
     def post(self, request):
-        # update = Update.de_json(request.data, bot())
-        # webhook(update)
+        json_data = request.data
+        logger.info(json.dumps(json_data, indent=4, sort_keys=True))
+        update = tg.parse_update(json_data)
+        ensure_user_exists(update.effective_user)
 
-        json_msg = request.data
-        # logger.info(json.dumps(json_msg, indent=4, sort_keys=True))
-        print(json.dumps(json_msg, indent=4, sort_keys=True))
-        update = tg.parse_update(json_msg)
-        print()
-        #
+        tg.send_message(update.effective_chat, "Мы пилим, скоро допилим, правда-правда")
+
         # if 'message' not in json_message:
         #     logger.info('no message field in message!')
         #     return
@@ -32,19 +36,4 @@ class TelegramHook(APIView):
         # employee = TelegramHook._ensure_employee_exists(msg, chat)
         # chat_id = chat.chat_id
         # text = msg.get('text')
-        #
-        # if text is None:
-        #     send_message(chat_id, 'Что-то пошло не так, в сообщении нет текста')
-        # elif text == '/start':
-        #     send_message(chat_id, 'Привет\n'
-        #                           '/report - чтобы отчитаться\n'
-        #                           '/skip - если не о чем отчитываться\n'
-        #                           'Мы будем напоминать об отчетах по вечерам')
-        # elif text == '/skip':
-        #     TelegramHook.skip(employee)
-        # elif text == '/report':
-        #     TelegramHook.start_report(employee)
-        # else:
-        #     TelegramHook.handle_text(employee, text)
-        #
         return HttpResponse('OK')
